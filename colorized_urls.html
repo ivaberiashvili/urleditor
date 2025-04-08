@@ -2,12 +2,17 @@
 <html>
 <head>
   <title>URL Editor with Matching Wrap</title>
-  
+
   <!-- CodeMirror CSS from CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css"
+/>
   <!-- Diff Match Patch Library from CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
-  
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"
+  ></script>
+
   <style>
     /* Universal settings: Montserrat (or fallback to arial/sans-serif) and line-height: 1.5 */
     body {
@@ -19,29 +24,29 @@
       max-width: 1280px;
       margin: 0 auto;
     }
-    
+
     /* Fixed-width container in ch units to align line wrapping */
     .column {
       background-color: white;
       padding: 15px;
       border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
       width: 80ch; /* Adjust if needed */
       box-sizing: border-box;
     }
-    
+
     h2 {
       margin-top: 0;
       color: #333;
     }
-    
+
     label {
       font-size: 0.9em;
       margin-bottom: 6px;
       display: inline-block;
     }
-    
+
     /* Input textarea styles */
     textarea {
       display: block;
@@ -49,47 +54,47 @@
       height: 240px;
       margin-bottom: 20px;
       box-sizing: border-box;
-      
+
       /* Ensure identical wrapping */
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
       overflow-x: hidden;
       overflow-y: auto;
-      
+
       /* Use universal font styles */
       font-family: inherit;
       font-size: inherit;
       line-height: inherit;
-      
+
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
       resize: vertical;
     }
-    
+
     /* Output div styles */
     .output {
       width: 100%;
       height: 240px;
       overflow-y: auto;
-      
+
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
       word-break: break-word;
       box-sizing: border-box;
-      
+
       font-family: inherit;
       font-size: inherit;
       line-height: inherit;
-      
+
       border: 1px solid #ddd;
       border-radius: 4px;
       margin-bottom: 10px;
       padding: 8px;
     }
-    
+
     .matchMessage {
       font-size: 0.9em;
       font-weight: bold;
@@ -97,7 +102,7 @@
       line-height: 1.4;
       min-height: 18px;
     }
-    
+
     /* CodeMirror instance styling */
     .CodeMirror {
       box-sizing: border-box;
@@ -106,26 +111,43 @@
       font-family: inherit;
       font-size: inherit;
       line-height: inherit;
-      
+
       border: 1px solid #ddd;
       border-radius: 4px;
       padding: 4px;
     }
-    
+
     .CodeMirror-scroll {
       overflow-x: hidden;
     }
-    
+
     /* Custom CodeMirror highlighting classes */
-    .cm-appsflyer-id { color: #4CAF50; }
-    .cm-query-key    { color: #ff477e; }
-    .cm-query-value  { color: #5465ff; }
+    .cm-appsflyer-id {
+      color: #4caf50;
+    }
+    .cm-query-key {
+      color: #ff477e;
+    }
+    .cm-query-value {
+      color: #5465ff;
+    }
     /* Operator styling: */
-    .cm-operator     { color: #ff477e; } 
-    .cm-punctuation  { color: #212121; }
-    
-    /* Highlight diff changes in the CodeMirror editor */
-    .diff-highlight { background-color: yellow; }
+    .cm-operator {
+      color: #ff477e;
+    }
+    .cm-punctuation {
+      color: #212121;
+    }
+
+    /* Highlight inserted text in CodeMirror editor */
+    .diff-highlight {
+      background-color: greenyellow;
+    }
+
+    /* Highlight deleted characters in Output while preserving colorization */
+    .deleted {
+      background-color: coral;
+    }
   </style>
 </head>
 <body>
@@ -133,38 +155,48 @@
 
   <div class="column">
     <h2 id="sectionTitle">Clicks</h2>
-    
+
     <!-- Original Input -->
     <label for="clicksInput">Input</label>
-    <textarea id="clicksInput" spellcheck="false" placeholder="Paste URL here..."></textarea>
-    
-    <!-- Colorized Output (for reference only) -->
+    <textarea
+      id="clicksInput"
+      spellcheck="false"
+      placeholder="Paste URL here..."
+    ></textarea>
+
+    <!-- Output always shows the original with color + any deletions in red -->
     <label for="clicksOutput">Output</label>
     <div id="clicksOutput" class="output"></div>
     <div id="clicksMessage" class="matchMessage"></div>
   </div>
-  
+
   <div class="column">
     <!-- Editable Text Area using CodeMirror -->
     <label for="clicksEditor">Edit URL</label>
-    <textarea id="clicksEditor" spellcheck="false" placeholder="Adjust the URL here..."></textarea>
+    <textarea
+      id="clicksEditor"
+      spellcheck="false"
+      placeholder="Adjust the URL here..."
+    ></textarea>
   </div>
-  
+
   <!-- CodeMirror JS from CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
-  
-  <!-- Define a custom CodeMirror mode ("urlmode") -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"
+  ></script>
+
+  <!-- Our custom CodeMirror mode ("urlmode") -->
   <script>
-    CodeMirror.defineMode("urlmode", function(config, parserConfig) {
+    CodeMirror.defineMode("urlmode", function (config, parserConfig) {
       return {
-        startState: function() {
+        startState: function () {
           return {
             inQuery: false,
             paramPhase: null,
-            isAppsflyer: false
+            isAppsflyer: false,
           };
         },
-        token: function(stream, state) {
+        token: function (stream, state) {
           if (!state.isAppsflyer) {
             if (stream.string.indexOf("appsflyer") !== -1) {
               state.isAppsflyer = true;
@@ -210,52 +242,151 @@
             stream.next();
             return null;
           }
-        }
+        },
       };
     });
   </script>
-  
+
   <script>
-    // Utility function for escaping HTML (used in Output)
+    // =============== Utility Functions ===============
+
+    // Escape special HTML chars
     function escapeHtml(str) {
       return str
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
-    
-    // Function to colorize URL for the reference Output (HTML version)
-    function colorizeString(rawUrl) {
-      const questionIndex = rawUrl.indexOf("?");
-      if (questionIndex === -1) {
-        return escapeHtml(rawUrl);
-      }
-      
-      const baseUrl = rawUrl.slice(0, questionIndex + 1);
-      const query = rawUrl.slice(questionIndex + 1);
-      
-      let escapedBase = escapeHtml(baseUrl);
-      if (rawUrl.includes("appsflyer")) {
-        escapedBase = escapedBase.replace(/(id\d+)/, `<span style="color: #4CAF50;">$1</span>`);
-      }
-      
-      const params = query.split("&");
-      const coloredParams = params.map(param => {
-        if (param.includes("=")) {
-          const [key, ...valParts] = param.split("=");
-          const value = valParts.join("=");
-          return `<span style="color: #ff477e;">${escapeHtml(key)}=</span><span style="color: #5465ff;">${escapeHtml(value)}</span>`;
-        } else {
-          return `<span style="color: red;">${escapeHtml(param)}</span>`;
+
+    // Produce a boolean "deletedMask" array for each character in the original text,
+    // indicating whether that character was removed in the new text.
+    function createDeletedMask(original, edited) {
+      const mask = new Array(original.length).fill(false);
+      const dmp = new diff_match_patch();
+      const diffs = dmp.diff_main(original, edited);
+      dmp.diff_cleanupSemantic(diffs);
+
+      let originalPos = 0;
+      diffs.forEach(([op, text]) => {
+        if (op === 0) {
+          // unchanged => move forward in originalPos
+          originalPos += text.length;
+        } else if (op === -1) {
+          // This chunk was deleted => mark those positions in 'mask'
+          for (let i = 0; i < text.length; i++) {
+            mask[originalPos + i] = true;
+          }
+          originalPos += text.length;
+        } else if (op === 1) {
+          // inserted => does not consume original text
         }
       });
-      
-      return escapedBase + coloredParams.join(`<span style="color: black;">&amp;</span>`);
+      return mask;
     }
-    
+
+    // "Fully colorize" the entire original URL, but wrap any
+    // character that is deleted in a <span class="deleted">.
+    function colorizeWithDeletions(original, deletedMask) {
+      // We'll do a single pass that splits the URL
+      // into "baseUrl" (before '?') and "query" (after '?'),
+      // then color tokens as before, but wrapping deleted chars in .deleted span.
+
+      const questionIndex = original.indexOf("?");
+      if (questionIndex === -1) {
+        // no query => colorize entire URL
+        return colorizeSegmentWithDeletions(original, 0, deletedMask);
+      }
+
+      // split
+      const baseUrl = original.slice(0, questionIndex + 1);
+      const query   = original.slice(questionIndex + 1);
+
+      // colorize the baseUrl (with potential "id123" highlight)
+      let baseColored = colorizeSegmentWithDeletions(baseUrl, 0, deletedMask);
+
+      // If "appsflyer" is found, highlight "id\d+" in green. We'll do it by
+      // scanning the final HTML (like your existing approach):
+      baseColored = baseColored.replace(
+        /(id\d+)/,
+        `<span style="color: #4CAF50;">$1</span>`
+      );
+
+      // parse the query by splitting on '&'
+      const queryChunks = query.split("&");
+      let queryHTML = "";
+      let offset = baseUrl.length; // position in the original string
+
+      for (let i = 0; i < queryChunks.length; i++) {
+        const chunk = queryChunks[i];
+        const chunkHTML = colorizeQueryParamWithDeletions(
+          chunk,
+          offset,
+          deletedMask
+        );
+
+        // add & if not the first param
+        if (i > 0) {
+          queryHTML += `<span style="color: black;">&amp;</span>`;
+        }
+        queryHTML += chunkHTML;
+        offset += chunk.length + (i < queryChunks.length - 1 ? 1 : 0); // +1 for '&'
+      }
+
+      return baseColored + queryHTML;
+    }
+
+    // This colorizes a substring (like the base URL or a param chunk) while
+    // also wrapping any deleted characters in <span class="deleted">.
+    // We do it character by character to preserve color for each character
+    // and handle partial deletions.
+    function colorizeSegmentWithDeletions(segment, baseOffset, deletedMask) {
+      let result = "";
+      for (let i = 0; i < segment.length; i++) {
+        const charIndex = baseOffset + i;
+        const c = segment[i];
+        const escaped = escapeHtml(c);
+
+        // If this char is marked as deleted, wrap in .deleted
+        if (deletedMask[charIndex]) {
+          result += `<span class="deleted">${escaped}</span>`;
+        } else {
+          result += escaped;
+        }
+      }
+      return result;
+    }
+
+    // Colorize a single param chunk "key=val" with deletions
+    function colorizeQueryParamWithDeletions(param, baseOffset, deletedMask) {
+      // if the param includes '='
+      const eqIndex = param.indexOf("=");
+      if (eqIndex === -1) {
+        // malformed param => color it red, but still wrap deletions
+        let redPart = colorizeSegmentWithDeletions(param, baseOffset, deletedMask);
+        return `<span style="color: red;">${redPart}</span>`;
+      } else {
+        // we have key=val
+        const key = param.slice(0, eqIndex);
+        const val = param.slice(eqIndex + 1);
+        const keyHTML = colorizeSegmentWithDeletions(key, baseOffset, deletedMask);
+        const eqHTML  = deletedMask[baseOffset + eqIndex]
+          ? `<span class="deleted">=</span>`
+          : "=";
+        const valHTML = colorizeSegmentWithDeletions(
+          val,
+          baseOffset + eqIndex + 1,
+          deletedMask
+        );
+
+        return `<span style="color: #ff477e;">${keyHTML}${eqHTML}</span>` +
+               `<span style="color: #5465ff;">${valHTML}</span>`;
+      }
+    }
+
+    // Check if "plain text" of output matches the original
     function checkUrlMatch(original, outputDiv, messageElement) {
-      const outputText = outputDiv.textContent;
-      if (original === outputText) {
+      const plain = outputDiv.textContent;
+      if (original === plain) {
         messageElement.textContent = "URLs match";
         messageElement.style.color = "green";
       } else {
@@ -263,76 +394,99 @@
         messageElement.style.color = "red";
       }
     }
-    
-    // Grab DOM elements
-    const clicksInput   = document.getElementById("clicksInput");
-    const clicksOutput  = document.getElementById("clicksOutput");
+
+    // =============== End Utilities ===============
+
+    // DOM elements
+    const clicksInput = document.getElementById("clicksInput");
+    const clicksOutput = document.getElementById("clicksOutput");
     const clicksMessage = document.getElementById("clicksMessage");
-    const sectionTitle  = document.getElementById("sectionTitle");
-    
+    const sectionTitle = document.getElementById("sectionTitle");
+
     let originalInputValue = "";
-    
-    // Instantiate CodeMirror on the hidden textarea for the Edit URL window.
-    const editor = CodeMirror.fromTextArea(document.getElementById("clicksEditor"), {
-      lineNumbers: false,
-      mode: "urlmode",
-      lineWrapping: true
-    });
-    
-    // When the user pastes or types in the Input area:
+
+    // CodeMirror Editor
+    const editor = CodeMirror.fromTextArea(
+      document.getElementById("clicksEditor"),
+      {
+        lineNumbers: false,
+        mode: "urlmode",
+        lineWrapping: true,
+      }
+    );
+
+    // User types/pastes in the Input area
     clicksInput.addEventListener("input", function () {
       originalInputValue = this.value.trim();
-      updateOutput(originalInputValue);
-      // Update CodeMirror with the same text
+      // Show the fully colorized original in the Output
+      // with no deletions (yet).
+      const noDeletions = new Array(originalInputValue.length).fill(false);
+      clicksOutput.innerHTML = colorizeWithDeletions(originalInputValue, noDeletions);
+      checkUrlMatch(originalInputValue, clicksOutput, clicksMessage);
+
+      // Also sync CodeMirror
       editor.setValue(originalInputValue);
+
+      // Update Title
+      updateSectionTitle(originalInputValue);
     });
-    
-    // Function to update Output and the heading based on the URL from Input
-    function updateOutput(url) {
-      if (url.includes("appsflyer")) {
-        if (url.includes("impression")) {
+
+    // For inserted text in the editor => highlight in yellow
+    // For deleted text => highlight those chars in red in the Output
+    editor.on("change", function (cm, change) {
+      // Clear previous insertion markers
+      if (window.diffMarkers) {
+        window.diffMarkers.forEach((m) => m.clear());
+      }
+      window.diffMarkers = [];
+
+      const newValue = cm.getValue();
+
+      // 1) Highlight inserted text (op=1) in editor
+      const dmp = new diff_match_patch();
+      const diffs = dmp.diff_main(originalInputValue, newValue);
+      dmp.diff_cleanupSemantic(diffs);
+
+      let pos = 0;
+      diffs.forEach(([op, text]) => {
+        if (op === 0) {
+          pos += text.length;
+        } else if (op === 1) {
+          // insertion => highlight in yellow
+          const startPos = cm.posFromIndex(pos);
+          const endPos = cm.posFromIndex(pos + text.length);
+          window.diffMarkers.push(
+            cm.markText(startPos, endPos, { className: "diff-highlight" })
+          );
+          pos += text.length;
+        }
+        // if (op === -1), do nothing in the editor
+      });
+
+      // 2) Create a "deletedMask" for the original text
+      const deletedMask = createDeletedMask(originalInputValue, newValue);
+
+      // 3) Rebuild Output with the original text, but wrap
+      //    any "deleted" chars in red
+      clicksOutput.innerHTML = colorizeWithDeletions(originalInputValue, deletedMask);
+
+      // 4) Check if they match
+      checkUrlMatch(originalInputValue, clicksOutput, clicksMessage);
+    });
+
+    function updateSectionTitle(raw) {
+      if (raw.includes("appsflyer")) {
+        if (raw.includes("impression")) {
           sectionTitle.textContent = "Impressions";
-        } else if (url.includes("app")) {
+        } else {
           sectionTitle.textContent = "Clicks";
         }
-      } else if (url.includes("imp")) {
+      } else if (raw.includes("imp")) {
         sectionTitle.textContent = "Impressions";
       } else {
         sectionTitle.textContent = "Clicks";
       }
-      clicksOutput.innerHTML = colorizeString(url);
-      checkUrlMatch(originalInputValue, clicksOutput, clicksMessage);
     }
-    
-    // Highlight differences in the CodeMirror editor.
-    // Whenever the CodeMirror editor content changes, compute a diff versus originalInputValue.
-    // Any inserted text is marked with the "diff-highlight" class.
-    editor.on("change", function(cm, change) {
-      // Clear previous markers
-      if (window.diffMarkers) {
-        window.diffMarkers.forEach(function(marker) { marker.clear(); });
-      }
-      window.diffMarkers = [];
-      
-      const newValue = cm.getValue();
-      const dmp = new diff_match_patch();
-      const diffs = dmp.diff_main(originalInputValue, newValue);
-      dmp.diff_cleanupSemantic(diffs);
-      
-      let pos = 0;
-      diffs.forEach(function(diff) {
-        const op = diff[0], text = diff[1];
-        if (op === 0) { // No change
-          pos += text.length;
-        } else if (op === 1) { // Insertion: mark these characters
-          const startPos = cm.posFromIndex(pos);
-          const endPos = cm.posFromIndex(pos + text.length);
-          window.diffMarkers.push(cm.markText(startPos, endPos, { className: "diff-highlight" }));
-          pos += text.length;
-        }
-        // Note: Deletions (op === -1) do not appear in the new text.
-      });
-    });
   </script>
 </body>
 </html>
