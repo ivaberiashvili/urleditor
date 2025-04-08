@@ -10,12 +10,14 @@
       max-width: 1280px;
       margin: 0 auto;
     }
+
     .container {
       display: flex;
       gap: 20px;
       margin-top: 20px;
-      align-items: flex-start; /* Each column resizes independently */
+      align-items: flex-start; /* Each column stands on its own height */
     }
+
     .column {
       flex: 1;
       box-sizing: border-box;
@@ -23,27 +25,36 @@
       padding: 15px;
       border-radius: 5px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+      /* Optional: if you *really* want each column to have a fixed total height,
+         you can set something like "height: 400px;" here.
+         Then content will scroll inside. */
     }
+
     h2 {
       margin-top: 0;
       color: #333;
     }
+
     label {
       font-size: 0.9em;
       margin-bottom: 6px;
       display: inline-block;
     }
-    /* Textarea styles */
+
+    /* Fixed-height textarea (does not grow). Overflows if content is too big. */
     textarea {
       display: block;
       width: 100%;
-      min-height: 200px;
+      height: 240px;          /* FIXED height */
       overflow-x: hidden;
-      overflow-y: auto;
+      overflow-y: auto;       /* Vertical scroll if there's lots of text */
+
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
       word-break: break-word;
+
       box-sizing: border-box;
       font-family: Arial, sans-serif;
       font-size: 16px;
@@ -51,20 +62,34 @@
       margin-bottom: 20px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      resize: vertical;
+      resize: vertical;       /* user can drag bigger or smaller if you prefer */
     }
+
+    /* Fixed-height output box. Also scrolls if content is too big. */
     .output {
-      min-height: 200px;
+      height: 240px;          /* FIXED height */
+      overflow-y: auto;
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
       word-break: break-word;
+
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 4px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       padding: 8px;
       font-size: 16px;
+    }
+
+    /* Single-line area for match/mismatch message */
+    .matchMessage {
+      font-size: 0.9em;
+      font-weight: bold;
+      margin-top: 5px;
+      /* We can force a small line height so it doesn't stretch the container */
+      line-height: 1.4;
+      min-height: 18px; /* enough for a short message without pushing content far */
     }
   </style>
 </head>
@@ -75,106 +100,86 @@
       <h2>Clicks</h2>
       <label for="clicksInput">Input</label>
       <textarea id="clicksInput" placeholder="Paste URL here..."></textarea>
+      
       <label for="clicksOutput">Output</label>
       <div id="clicksOutput" class="output"></div>
+      <div id="clicksMessage" class="matchMessage"></div>
     </div>
+    
     <div class="column">
       <h2>Impressions</h2>
       <label for="impressionsInput">Input</label>
       <textarea id="impressionsInput" placeholder="Paste URL here..."></textarea>
+      
       <label for="impressionsOutput">Output</label>
       <div id="impressionsOutput" class="output"></div>
+      <div id="impressionsMessage" class="matchMessage"></div>
     </div>
   </div>
 
   <script>
-    // Color rules—if a path segment exactly matches one of these keys,
-    // that segment will be wrapped in a span with the specified color.
+    // Color rules: if substring "/home" => highlight "home" in green, etc.
     const colorRules = {
       "home": "green",
       "about": "blue",
       "contact": "red"
     };
 
-    // This function builds a document fragment by creating text nodes
-    // (and colored span elements) so that every character is preserved.
-    function colorizeUrl(url) {
-      const fragment = document.createDocumentFragment();
-      if (!url) return fragment;
-      
-      try {
-        // Try to parse the URL
-        const urlObj = new URL(url);
-        
-        // Add the protocol and host (e.g. "http://example.com")
-        fragment.appendChild(document.createTextNode(urlObj.protocol + '//' + urlObj.host));
-        
-        // Process the pathname (the part after the host)
-        // For example, if the pathname is "/home/about", we want to treat each segment.
-        // Split on '/'—the first element will be an empty string because the path starts with '/'
-        const segments = urlObj.pathname.split('/');
-        for (let i = 0; i < segments.length; i++) {
-          // Insert a slash between segments (or at the beginning)
-          if (i > 0) {
-            fragment.appendChild(document.createTextNode('/'));
-          }
-          const segment = segments[i];
-          if (segment) {
-            // If this segment matches one of our color rules,
-            // create a span element with that color.
-            if (colorRules.hasOwnProperty(segment)) {
-              const span = document.createElement("span");
-              span.style.color = colorRules[segment];
-              span.textContent = segment; // Use textContent to preserve all characters
-              fragment.appendChild(span);
-            } else {
-              // Otherwise, just append the segment as a text node.
-              fragment.appendChild(document.createTextNode(segment));
-            }
-          }
-        }
-        
-        // Append the query string (if present)
-        if (urlObj.search) {
-          fragment.appendChild(document.createTextNode(urlObj.search));
-        }
-        
-        // Append the hash fragment (if present)
-        if (urlObj.hash) {
-          fragment.appendChild(document.createTextNode(urlObj.hash));
-        }
-        
-        return fragment;
-      } catch (e) {
-        // If URL parsing fails, simply return the original URL as text.
-        fragment.appendChild(document.createTextNode(url));
-        return fragment;
+    // Replaces "/home" etc. with a <span>. 
+    // Otherwise, returns the raw URL with HTML entities escaped.
+    function colorizeString(rawUrl) {
+      // Escape entire input first
+      let safe = escapeHtml(rawUrl);
+
+      // For each recognized segment, replace occurrences of "/segment"
+      // with a colorized <span> version. e.g., "/home" => "/<span style="color:green">home</span>"
+      for (const [segment, color] of Object.entries(colorRules)) {
+        const pattern = new RegExp(`/${segment}`, "g");
+        const replacement = `/<span style="color:${color}">${segment}</span>`;
+        safe = safe.replace(pattern, replacement);
+      }
+      return safe;
+    }
+
+    // Escape special HTML chars
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    // Compare raw input to the output's textContent for perfect match
+    function checkUrlMatch(inputValue, outputDiv, messageElement) {
+      const outputText = outputDiv.textContent;
+      if (inputValue === outputText) {
+        messageElement.textContent = "URLs match";
+        messageElement.style.color = "green";
+      } else {
+        messageElement.textContent = "URLs mismatch";
+        messageElement.style.color = "red";
       }
     }
 
-    // Auto-resize the textarea height based on content
-    function autoResize(elem) {
-      elem.style.height = 'auto';         // Reset the height
-      elem.style.height = elem.scrollHeight + 'px'; // Set it to the new content height
-    }
+    // Grab references
+    const clicksInput = document.getElementById("clicksInput");
+    const impressionsInput = document.getElementById("impressionsInput");
+    const clicksOutput = document.getElementById("clicksOutput");
+    const impressionsOutput = document.getElementById("impressionsOutput");
+    const clicksMessage = document.getElementById("clicksMessage");
+    const impressionsMessage = document.getElementById("impressionsMessage");
 
-    // Grab references to our textareas and output containers
-    const clicksInput = document.getElementById('clicksInput');
-    const impressionsInput = document.getElementById('impressionsInput');
-    const clicksOutput = document.getElementById('clicksOutput');
-    const impressionsOutput = document.getElementById('impressionsOutput');
-
-    // Update output and auto-resize on user input
-    clicksInput.addEventListener('input', function() {
-      autoResize(this);
-      clicksOutput.innerHTML = ''; // Clear previous content
-      clicksOutput.appendChild(colorizeUrl(this.value));
+    // Event listeners
+    clicksInput.addEventListener("input", function() {
+      const result = colorizeString(this.value);
+      clicksOutput.innerHTML = result;
+      checkUrlMatch(this.value, clicksOutput, clicksMessage);
     });
-    
-    impressionsInput.addEventListener('input', function() {
-      autoResize(this);
-      impressionsOutput.innerHTML = '';
-      impressionsOutput.appendChild(colorizeUrl(this.value));
+
+    impressionsInput.addEventListener("input", function() {
+      const result = colorizeString(this.value);
+      impressionsOutput.innerHTML = result;
+      checkUrlMatch(this.value, impressionsOutput, impressionsMessage);
     });
   </script>
 </body>
