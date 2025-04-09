@@ -11,6 +11,11 @@
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"
     ></script>
+    <!-- Material Symbols icon for copy -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=content_copy"
+    />
     <!-- Our custom CSS -->
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -19,23 +24,40 @@
     <div class="column">
       <h2 id="sectionTitle">Clicks</h2>
 
+      <!-- Input Section -->
+      <div class="copy-container">
+        <h4>Input</h4>
+        <button id="copyButtonInput">
+          <span class="material-symbols-outlined">content_copy</span>
+        </button>
+        <span id="copyPopupInput" class="copy-popup">Copied</span>
+      </div>
       <!-- Original Input -->
-      <label for="clicksInput">Input</label>
       <textarea
         id="clicksInput"
         spellcheck="false"
         placeholder="Paste URL here..."
       ></textarea>
 
+      <!-- Output Section -->
+      <div class="copy-container">
+        <h4>Output</h4>
+      </div>
       <!-- Output always shows the original with color + any deletions in red -->
-      <label for="clicksOutput">Output</label>
       <div id="clicksOutput" class="output"></div>
       <div id="clicksMessage" class="matchMessage"></div>
     </div>
 
     <div class="column">
+      <!-- Edit URL Section -->
+      <div class="copy-container">
+        <h4>Edit URL</h4>
+        <button id="copyButtonEditor">
+          <span class="material-symbols-outlined">content_copy</span>
+        </button>
+        <span id="copyPopupEditor" class="copy-popup">Copied</span>
+      </div>
       <!-- Editable Text Area using CodeMirror -->
-      <label for="clicksEditor">Edit URL</label>
       <textarea
         id="clicksEditor"
         spellcheck="false"
