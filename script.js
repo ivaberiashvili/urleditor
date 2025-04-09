@@ -1,23 +1,3 @@
-/* // Import CSS file (your existing import statement)
-import './styles.css';
-
-// Import all CSS colors from the root element into a JS object.
-const computedStyle = getComputedStyle(document.documentElement);
-const colors = {
-  navy: computedStyle.getPropertyValue('--color-navy').trim(),
-  dark: computedStyle.getPropertyValue('--color-dark').trim(),
-  green: computedStyle.getPropertyValue('--color-green').trim(),
-  teal: computedStyle.getPropertyValue('--color-teal').trim(),
-  blue: computedStyle.getPropertyValue('--color-blue').trim(),
-  lime: computedStyle.getPropertyValue('--color-lime').trim(),
-  gray: computedStyle.getPropertyValue('--color-gray').trim(),
-  offwhite: computedStyle.getPropertyValue('--color-offwhite').trim(),
-  pink: computedStyle.getPropertyValue('--color-pink').trim(),
-  red: computedStyle.getPropertyValue('--color-red').trim(),
-  peach: computedStyle.getPropertyValue('--color-peach').trim(),
-};
-*/
-
 // =============== Custom CodeMirror Mode ===============
 CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     return {
