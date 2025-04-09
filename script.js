@@ -1,3 +1,23 @@
+/* // Import CSS file (your existing import statement)
+import './styles.css';
+
+// Import all CSS colors from the root element into a JS object.
+const computedStyle = getComputedStyle(document.documentElement);
+const colors = {
+  navy: computedStyle.getPropertyValue('--color-navy').trim(),
+  dark: computedStyle.getPropertyValue('--color-dark').trim(),
+  green: computedStyle.getPropertyValue('--color-green').trim(),
+  teal: computedStyle.getPropertyValue('--color-teal').trim(),
+  blue: computedStyle.getPropertyValue('--color-blue').trim(),
+  lime: computedStyle.getPropertyValue('--color-lime').trim(),
+  gray: computedStyle.getPropertyValue('--color-gray').trim(),
+  offwhite: computedStyle.getPropertyValue('--color-offwhite').trim(),
+  pink: computedStyle.getPropertyValue('--color-pink').trim(),
+  red: computedStyle.getPropertyValue('--color-red').trim(),
+  peach: computedStyle.getPropertyValue('--color-peach').trim(),
+};
+*/
+
 // =============== Custom CodeMirror Mode ===============
 CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     return {
@@ -97,7 +117,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     let baseColored = colorizeSegmentWithDeletions(baseUrl, 0, deletedMask);
     baseColored = baseColored.replace(
       /(id\d+)/,
-      `<span style="color: #4CAF50;">$1</span>`
+      `<span style="color: #2DB182 : #2B2E4A;">$1</span>`
     );
   
     const queryChunks = query.split("&");
@@ -111,7 +131,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
         deletedMask
       );
       if (i > 0) {
-        queryHTML += `<span style="color: black;">&amp;</span>`;
+        queryHTML += `<span style="#333: black;">&amp;</span>`;
       }
       queryHTML += chunkHTML;
       offset += chunk.length + (i < queryChunks.length - 1 ? 1 : 0);
@@ -138,31 +158,38 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     const eqIndex = param.indexOf("=");
     if (eqIndex === -1) {
       let redPart = colorizeSegmentWithDeletions(param, baseOffset, deletedMask);
-      return `<span style="color: red;">${redPart}</span>`;
+      return `<span style="color: #F95A49;">${redPart}</span>`;
     } else {
       const key = param.slice(0, eqIndex);
       const val = param.slice(eqIndex + 1);
       const keyHTML = colorizeSegmentWithDeletions(key, baseOffset, deletedMask);
       const eqHTML =
-        deletedMask[baseOffset + eqIndex] ? `<span class="deleted">=</span>` : "=";
+        deletedMask[baseOffset + eqIndex]
+          ? `<span class="deleted">=</span>`
+          : "=";
       const valHTML = colorizeSegmentWithDeletions(
         val,
         baseOffset + eqIndex + 1,
         deletedMask
       );
-      return `<span style="color: #ff477e;">${keyHTML}${eqHTML}</span>` +
-             `<span style="color: #5465ff;">${valHTML}</span>`;
+      return `<span style="color: #F35ADC; ;">${keyHTML}${eqHTML}</span>` +
+             `<span style="color: #5A6CF3 ;">${valHTML}</span>`;
     }
   }
   
+  // Updated function to display URL status in one message area.
   function checkUrlMatch(original, outputDiv, messageElement) {
     const plain = outputDiv.textContent;
-    if (original === plain) {
+    // If the input doesn't start with a valid URL protocol, indicate an error.
+    if (!original.startsWith("http://") && !original.startsWith("https://")) {
+      messageElement.textContent = "not a URL";
+      messageElement.style.color = " #F95A49";
+    } else if (original === plain) {
       messageElement.textContent = "URLs match";
-      messageElement.style.color = "green";
+      messageElement.style.color = " #2DB182";
     } else {
       messageElement.textContent = "URLs mismatch";
-      messageElement.style.color = "red";
+      messageElement.style.color = " #F95A49";
     }
   }
   // =============== End Utilities ===============
@@ -264,7 +291,6 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
         });
     });
   }
-  
   
   // 3) Copy from CodeMirror Editor
   const copyButtonEditor = document.getElementById("copyButtonEditor");

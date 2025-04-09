@@ -17,7 +17,8 @@
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=content_copy"
     />
     <!-- Our custom CSS -->
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="favicon.png" type="image/png">
   </head>
   <body>
     <h1>URL Editor</h1>
@@ -42,10 +43,11 @@
       <!-- Output Section -->
       <div class="copy-container">
         <h4>Output</h4>
+        <!-- Message area for URL status (e.g. not a URL, URLs match/mismatch) -->
+        <div id="clicksMessage" class="matchMessage"></div>
       </div>
       <!-- Output always shows the original with color + any deletions in red -->
       <div id="clicksOutput" class="output"></div>
-      <div id="clicksMessage" class="matchMessage"></div>
     </div>
 
     <div class="column">
