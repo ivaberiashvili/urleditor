@@ -77,7 +77,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
       },
     };
   });
-  
+    
   // =============== Utility Functions ===============
   function escapeHtml(str) {
     return str
@@ -85,13 +85,13 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
-  
+    
   function createDeletedMask(original, edited) {
     const mask = new Array(original.length).fill(false);
     const dmp = new diff_match_patch();
     const diffs = dmp.diff_main(original, edited);
     dmp.diff_cleanupSemantic(diffs);
-  
+    
     let originalPos = 0;
     diffs.forEach(([op, text]) => {
       if (op === 0) {
@@ -105,7 +105,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     });
     return mask;
   }
-  
+    
   function colorizeWithDeletions(original, deletedMask) {
     const questionIndex = original.indexOf("?");
     if (questionIndex === -1) {
@@ -113,23 +113,24 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     }
     const baseUrl = original.slice(0, questionIndex + 1);
     const query = original.slice(questionIndex + 1);
-  
+    
     let baseColored = colorizeSegmentWithDeletions(baseUrl, 0, deletedMask);
+    
+    // Choose the appropriate color for appsflyer id:
+    // If "appsflyer" is present in the URL use green (#18c6af), otherwise use dark (#2B2E4A).
+    const idColor = original.includes("appsflyer") ? "#18c6af" : "#2B2E4A";
+    
     baseColored = baseColored.replace(
       /(id\d+)/,
-      `<span style="color: #2DB182 : #2B2E4A;">$1</span>`
+      `<span style="color: ${idColor};">$1</span>`
     );
-  
+    
     const queryChunks = query.split("&");
     let queryHTML = "";
     let offset = baseUrl.length;
     for (let i = 0; i < queryChunks.length; i++) {
       const chunk = queryChunks[i];
-      const chunkHTML = colorizeQueryParamWithDeletions(
-        chunk,
-        offset,
-        deletedMask
-      );
+      const chunkHTML = colorizeQueryParamWithDeletions(chunk, offset, deletedMask);
       if (i > 0) {
         queryHTML += `<span style="#333: black;">&amp;</span>`;
       }
@@ -138,7 +139,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     }
     return baseColored + queryHTML;
   }
-  
+    
   function colorizeSegmentWithDeletions(segment, baseOffset, deletedMask) {
     let result = "";
     for (let i = 0; i < segment.length; i++) {
@@ -153,7 +154,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     }
     return result;
   }
-  
+    
   function colorizeQueryParamWithDeletions(param, baseOffset, deletedMask) {
     const eqIndex = param.indexOf("=");
     if (eqIndex === -1) {
@@ -172,11 +173,11 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
         baseOffset + eqIndex + 1,
         deletedMask
       );
-      return `<span style="color: #F35ADC; ;">${keyHTML}${eqHTML}</span>` +
-             `<span style="color: #5A6CF3 ;">${valHTML}</span>`;
+      return `<span style="color: #F35ADC;">${keyHTML}${eqHTML}</span>` +
+             `<span style="color: #5A6CF3;">${valHTML}</span>`;
     }
   }
-  
+    
   // Updated function to display URL status in one message area.
   function checkUrlMatch(original, outputDiv, messageElement) {
     const plain = outputDiv.textContent;
@@ -192,50 +193,51 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
       messageElement.style.color = " #F95A49";
     }
   }
+    
   // =============== End Utilities ===============
-  
+    
   // DOM elements
   const clicksInput = document.getElementById("clicksInput");
   const clicksOutput = document.getElementById("clicksOutput");
   const clicksMessage = document.getElementById("clicksMessage");
   const sectionTitle = document.getElementById("sectionTitle");
-  
+    
   let originalInputValue = "";
-  
+    
   // Instantiate CodeMirror on the "Edit URL" textarea.
   const editor = CodeMirror.fromTextArea(document.getElementById("clicksEditor"), {
     lineNumbers: false,
     mode: "urlmode",
     lineWrapping: true,
   });
-  
+    
   // When the user types/pastes in the Input area...
   clicksInput.addEventListener("input", function () {
     originalInputValue = this.value.trim();
     const noDeletions = new Array(originalInputValue.length).fill(false);
     clicksOutput.innerHTML = colorizeWithDeletions(originalInputValue, noDeletions);
     checkUrlMatch(originalInputValue, clicksOutput, clicksMessage);
-  
+    
     // Sync CodeMirror with the Input value.
     editor.setValue(originalInputValue);
     editor.refresh();
-  
+    
     // Update Title
     updateSectionTitle(originalInputValue);
   });
-  
+    
   // In the CodeMirror editor, highlight insertions in yellow and update the Output to show deletions in red.
   editor.on("change", function (cm, change) {
     if (window.diffMarkers) {
       window.diffMarkers.forEach((m) => m.clear());
     }
     window.diffMarkers = [];
-  
+    
     const newValue = cm.getValue();
     const dmp = new diff_match_patch();
     const diffs = dmp.diff_main(originalInputValue, newValue);
     dmp.diff_cleanupSemantic(diffs);
-  
+    
     let pos = 0;
     diffs.forEach(([op, text]) => {
       if (op === 0) {
@@ -250,13 +252,13 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
       }
       // For deletions (op === -1), no action in the editor.
     });
-  
+    
     const deletedMask = createDeletedMask(originalInputValue, newValue);
     clicksOutput.innerHTML = colorizeWithDeletions(originalInputValue, deletedMask);
     checkUrlMatch(originalInputValue, clicksOutput, clicksMessage);
     editor.refresh();
   });
-  
+    
   function updateSectionTitle(raw) {
     if (raw.includes("appsflyer")) {
       if (raw.includes("impression")) {
@@ -270,9 +272,9 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
       sectionTitle.textContent = "Clicks";
     }
   }
-  
+    
   // =============== COPY BUTTON LOGIC (ADDED) ===============
-  
+    
   // 1) Copy from Input textarea
   const copyButtonInput = document.getElementById("copyButtonInput");
   const copyPopupInput = document.getElementById("copyPopupInput");
@@ -291,7 +293,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
         });
     });
   }
-  
+    
   // 3) Copy from CodeMirror Editor
   const copyButtonEditor = document.getElementById("copyButtonEditor");
   const copyPopupEditor = document.getElementById("copyPopupEditor");

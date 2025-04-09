@@ -52,7 +52,7 @@ table {
     --color-navy: #023A6B;   /* Dark navy-like blue */
     --color-dark: #2B2E4A;   /* Deep slate blue */
     --color-green: #2DB182;  /* Medium mint green */
-    --color-teal: #31D8C2;   /* Bright teal */
+    --color-teal: #18c6af;   /* Bright teal */
     --color-blue: #5A6CF3;   /* Vibrant lavender/blue */
     --color-lime: #D6FF97;   /* Pastel lime green */
     --color-gray: #dddddd;   /* Light gray */
@@ -84,7 +84,7 @@ body {
   /* Fixed-width container in ch units to align line wrapping and center it */
   .column {
     background-color: white;
-    padding: 16px;
+    padding: 20px 16px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
@@ -207,11 +207,13 @@ body {
   /* Highlight inserted text in CodeMirror editor */
   .diff-highlight {
     background-color: var(--color-lime);
+    color: var(--color-dark);
   }
   
   /* Highlight deleted characters in Output while preserving colorization */
   .deleted {
     background-color: var(--color-peach);
+    color: var(--color-dark);
   }
   
   /* ================= ADDED FOR COPY BUTTONS ================= */
