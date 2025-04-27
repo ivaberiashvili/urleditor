@@ -180,7 +180,6 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
   const clicksInput = document.getElementById("clicksInput");
   const clicksOutput = document.getElementById("clicksOutput");
   const clicksMessage = document.getElementById("clicksMessage");
-  const sectionTitle = document.getElementById("sectionTitle");
     
   let originalInputValue = "";
     
@@ -201,9 +200,6 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     // Sync CodeMirror with the Input value.
     editor.setValue(originalInputValue);
     editor.refresh();
-    
-    // Update Title
-    updateSectionTitle(originalInputValue);
   });
     
   // In the CodeMirror editor, highlight insertions in yellow and update the Output to show deletions in red.
@@ -239,19 +235,6 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     editor.refresh();
   });
     
-  function updateSectionTitle(raw) {
-    if (raw.includes("appsflyer")) {
-      if (raw.includes("impression")) {
-        sectionTitle.textContent = "Impressions";
-      } else {
-        sectionTitle.textContent = "Clicks";
-      }
-    } else if (raw.includes("imp")) {
-      sectionTitle.textContent = "Impressions";
-    } else {
-      sectionTitle.textContent = "Clicks";
-    }
-  }
     
   // =============== COPY BUTTON LOGIC (ADDED) ===============
     

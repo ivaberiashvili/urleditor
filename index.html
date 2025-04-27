@@ -5,9 +5,8 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VDRYPTT6HE"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){dataLayer.push(arguments);}      
       gtag('js', new Date());
-
       gtag('config', 'G-VDRYPTT6HE');
     </script>
     <title>URL Editor</title>
@@ -31,10 +30,9 @@
   </head>
   <body>
     <h1>URL Editor</h1>
-    <div class="column">
-      <h2 id="sectionTitle">Clicks</h2>
 
-      <!-- Input Section -->
+    <!-- Input Section (full width) -->
+    <div class="column">
       <div class="copy-container">
         <h4>Input</h4>
         <button id="copyButtonInput">
@@ -42,37 +40,51 @@
         </button>
         <span id="copyPopupInput" class="copy-popup">Copied</span>
       </div>
-      <!-- Original Input -->
       <textarea
         id="clicksInput"
         spellcheck="false"
         placeholder="Paste URL here..."
       ></textarea>
-
-      <!-- Output Section -->
-      <div class="copy-container">
-        <h4>Output</h4>
-        <!-- Message area for URL status (e.g. not a URL, URLs match/mismatch) -->
-        <div id="clicksMessage" class="matchMessage"></div>
-      </div>
-      <!-- Output always shows the original with color + any deletions in red -->
-      <div id="clicksOutput" class="output"></div>
     </div>
 
-    <div class="column">
-      <!-- Edit URL Section -->
-      <div class="copy-container">
-        <h4>Edit URL</h4>
-        <button id="copyButtonEditor">
-          <span class="material-symbols-outlined">content_copy</span>
-        </button>
-        <span id="copyPopupEditor" class="copy-popup">Copied</span>
+    <!-- Output and Edit URL side by side -->
+    <div class="row">
+      <!-- Output Column -->
+      <div class="column">
+        <div class="copy-container">
+          <h4>Output</h4>
+          <div id="clicksMessage" class="matchMessage"></div>
+        </div>
+        <div id="clicksOutput" class="output"></div>
       </div>
-      <!-- Editable Text Area using CodeMirror -->
+
+      <!-- Edit URL Column -->
+      <div class="column">
+        <div class="copy-container">
+          <h4>Edit URL</h4>
+          <button id="copyButtonEditor">
+            <span class="material-symbols-outlined">content_copy</span>
+          </button>
+          <span id="copyPopupEditor" class="copy-popup">Copied</span>
+        </div>
+        <textarea
+          id="clicksEditor"
+          spellcheck="false"
+          placeholder="Adjust the URL here..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Notes Section (full width) -->
+    <div class="column">
+      <div class="copy-container">
+        <h4>Notes</h4>
+        <span id="copyPopupNotes" class="copy-popup">Copied</span>
+      </div>
       <textarea
-        id="clicksEditor"
+        id="notesInput"
         spellcheck="false"
-        placeholder="Adjust the URL here..."
+        placeholder="Write notes here..."
       ></textarea>
     </div>
 
