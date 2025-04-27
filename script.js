@@ -188,6 +188,7 @@ CodeMirror.defineMode("urlmode", function (config, parserConfig) {
     lineNumbers: false,
     mode: "urlmode",
     lineWrapping: true,
+    viewportMargin: Infinity 
   });
     
   // When the user types/pastes in the Input area...

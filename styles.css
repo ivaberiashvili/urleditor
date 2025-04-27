@@ -138,11 +138,16 @@ body {
   textarea:focus {
     outline: none; /* removes default blue outline */
   }
+
+  textarea::selection {
+    background: #B2D7FF;
+  }
   
   /* Output div styles */
   .output {
     width: 100%;
-    height: 200px;
+    min-height: 200px;
+    height: auto;
     overflow-y: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -169,22 +174,49 @@ body {
   .CodeMirror {
     box-sizing: border-box;
     width: 100%;
-    height: 200px;
+    min-height: 200px;
+    height: auto !important;
     font-family: inherit;
     font-size: inherit;
-    line-height: inherit;
+    line-height: 1.5 !important; 
     border: 1px solid var(--color-gray);
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     border-top: none;
-    padding: 4px;
-    resize: vertical; /* allow vertical resize */
+    padding: 8px;
+    resize: none;
   }
   
   .CodeMirror-scroll {
     overflow-x: hidden;
+    min-height: 200px;
+    height: auto !important;
+    resize: none !important;
   }
-  
+  .CodeMirror pre.CodeMirror-line {
+    padding: 0 !important; /* SUPER important: kill per-line padding */
+    margin: 0 !important;  /* remove weird vertical margins */
+    line-height: 1.5 !important; /* force each line height */
+  }
+
+  .CodeMirror.cm-s-default.CodeMirror-wrap {
+    padding: 0;          /* outer container */
+  }
+
+  .CodeMirror-lines {
+    padding: 8px;
+  }
+
+  .CodeMirror-cursor {
+    height: 18px !important;   /* Match your textarea text line */
+    margin:0;
+    margin-top: 2px !important;  /* No weird vertical offset */
+  }
+
+  .CodeMirror-selected {
+    background: #B2D7FF !important; /* Light blue, close to browser default */
+  }
+
   /* Custom CodeMirror token highlighting */
   .cm-appsflyer-id {
     color: var(--color-teal);
