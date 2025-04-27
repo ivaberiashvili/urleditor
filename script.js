@@ -71,83 +71,83 @@ function parseUrl(url) {
     return [domain, ...pairs.map((pair, index) => index === 0 ? pair : `&${pair}`)];
 }
 
-function createDeletedMask(original, edited) {
-    const mask = new Array(original.length).fill(false);
-    const dmp = new diff_match_patch();
-    const diffs = dmp.diff_main(original, edited);
-    dmp.diff_cleanupSemantic(diffs);
+// function createDeletedMask(original, edited) {
+//     const mask = new Array(original.length).fill(false);
+//     const dmp = new diff_match_patch();
+//     const diffs = dmp.diff_main(original, edited);
+//     dmp.diff_cleanupSemantic(diffs);
     
-    let originalPos = 0;
-    diffs.forEach(([op, text]) => {
-        if (op === 0) {
-            originalPos += text.length;
-        } else if (op === -1) {
-            for (let i = 0; i < text.length; i++) {
-                mask[originalPos + i] = true;
-            }
-            originalPos += text.length;
-        }
-    });
-    return mask;
-}
+//     let originalPos = 0;
+//     diffs.forEach(([op, text]) => {
+//         if (op === 0) {
+//             originalPos += text.length;
+//         } else if (op === -1) {
+//             for (let i = 0; i < text.length; i++) {
+//                 mask[originalPos + i] = true;
+//             }
+//             originalPos += text.length;
+//         }
+//     });
+//     return mask;
+// }
 
-function colorizeWithDeletions(original, deletedMask) {
-    const questionIndex = original.indexOf("?");
-    if (questionIndex === -1) {
-        return colorizeSegmentWithDeletions(original, 0, deletedMask);
-    }
+// function colorizeWithDeletions(original, deletedMask) {
+//     const questionIndex = original.indexOf("?");
+//     if (questionIndex === -1) {
+//         return colorizeSegmentWithDeletions(original, 0, deletedMask);
+//     }
     
-    const domain = original.slice(0, questionIndex + 1);
-    const query = original.slice(questionIndex + 1);
+//     const domain = original.slice(0, questionIndex + 1);
+//     const query = original.slice(questionIndex + 1);
     
-    let domainColored = colorizeSegmentWithDeletions(domain, 0, deletedMask);
+//     let domainColored = colorizeSegmentWithDeletions(domain, 0, deletedMask);
     
-    const queryChunks = query.split("&");
-    let queryHTML = "";
-    let offset = domain.length;
+//     const queryChunks = query.split("&");
+//     let queryHTML = "";
+//     let offset = domain.length;
     
-    for (let i = 0; i < queryChunks.length; i++) {
-        const chunk = queryChunks[i];
-        const chunkHTML = colorizeQueryParamWithDeletions(chunk, offset, deletedMask);
-        if (i > 0) {
-            queryHTML += `<span class="punctuation">&amp;</span>`;
-        }
-        queryHTML += chunkHTML;
-        offset += chunk.length + (i < queryChunks.length - 1 ? 1 : 0);
-    }
+//     for (let i = 0; i < queryChunks.length; i++) {
+//         const chunk = queryChunks[i];
+//         const chunkHTML = colorizeQueryParamWithDeletions(chunk, offset, deletedMask);
+//         if (i > 0) {
+//             queryHTML += `<span class="punctuation">&amp;</span>`;
+//         }
+//         queryHTML += chunkHTML;
+//         offset += chunk.length + (i < queryChunks.length - 1 ? 1 : 0);
+//     }
     
-    return domainColored + queryHTML;
-}
+//     return domainColored + queryHTML;
+// }
 
-function colorizeSegmentWithDeletions(segment, baseOffset, deletedMask) {
-    let result = "";
-    for (let i = 0; i < segment.length; i++) {
-        const charIndex = baseOffset + i;
-        const c = segment[i];
-        const escaped = escapeHtml(c);
-        if (deletedMask[charIndex]) {
-            result += `<span class="deleted">${escaped}</span>`;
-        } else {
-            result += escaped;
-        }
-    }
-    return result;
-}
+// function colorizeSegmentWithDeletions(segment, baseOffset, deletedMask) {
+//     let result = "";
+//     for (let i = 0; i < segment.length; i++) {
+//         const charIndex = baseOffset + i;
+//         const c = segment[i];
+//         const escaped = escapeHtml(c);
+//         if (deletedMask[charIndex]) {
+//             result += `<span class="deleted">${escaped}</span>`;
+//         } else {
+//             result += escaped;
+//         }
+//     }
+//     return result;
+// }
 
-function colorizeQueryParamWithDeletions(param, baseOffset, deletedMask) {
-    const eqIndex = param.indexOf("=");
-    if (eqIndex === -1) {
-        let paramPart = colorizeSegmentWithDeletions(param, baseOffset, deletedMask);
-        return `<span class="parameter">${paramPart}</span>`;
-    } else {
-        const key = param.slice(0, eqIndex);
-        const val = param.slice(eqIndex + 1);
-        const keyHTML = colorizeSegmentWithDeletions(key, baseOffset, deletedMask);
-        const eqHTML = deletedMask[baseOffset + eqIndex] ? `<span class="deleted">=</span>` : "=";
-        const valHTML = colorizeSegmentWithDeletions(val, baseOffset + eqIndex + 1, deletedMask);
-        return `<span class="parameter">${keyHTML}${eqHTML}</span><span class="value">${valHTML}</span>`;
-    }
-}
+// function colorizeQueryParamWithDeletions(param, baseOffset, deletedMask) {
+//     const eqIndex = param.indexOf("=");
+//     if (eqIndex === -1) {
+//         let paramPart = colorizeSegmentWithDeletions(param, baseOffset, deletedMask);
+//         return `<span class="parameter">${paramPart}</span>`;
+//     } else {
+//         const key = param.slice(0, eqIndex);
+//         const val = param.slice(eqIndex + 1);
+//         const keyHTML = colorizeSegmentWithDeletions(key, baseOffset, deletedMask);
+//         const eqHTML = deletedMask[baseOffset + eqIndex] ? `<span class="deleted">=</span>` : "=";
+//         const valHTML = colorizeSegmentWithDeletions(val, baseOffset + eqIndex + 1, deletedMask);
+//         return `<span class="parameter">${keyHTML}${eqHTML}</span><span class="value">${valHTML}</span>`;
+//     }
+// }
 
 function checkUrlMatch(original, outputDiv, messageElement) {
     const plain = outputDiv.textContent;
@@ -218,7 +218,7 @@ wrapper.addEventListener("click", (e) => {
   const clickY = e.clientY - top;
   const lineHeight = editor.defaultTextHeight();
   const contentHeight = editor.lineCount() * lineHeight;
-  // 8px = the CodeMirror .lines top padding you’ve set in CSS
+  // 8px = the CodeMirror .lines top padding you've set in CSS
   if (clickY > contentHeight + 8) {
     // insert a new param line at the end
     const lastLine = editor.lineCount() - 1;
@@ -237,12 +237,12 @@ editor.on("beforeChange", (cm, change) => {
     const pasted = change.text.join("\n");
     // make sure it looks like a chunk of params (has & and =)
     if (pasted.includes("&") && pasted.includes("=")) {
-      // split on &, strip any leading “?” and empties
+      // split on &, strip any leading "?" and empties
       const pairs = pasted
         .split("&")
         .map(s => s.trim().replace(/^\?/, ""))
         .filter(Boolean);
-      // re-prefix “&” on each one
+      // re-prefix "&" on each one
       const lines = pairs.map(pair => "&" + pair);
       // replace the paste with our lines
       change.update(null, null, lines);
@@ -298,28 +298,28 @@ clicksInput.addEventListener("input", function () {
 
 // In the CodeMirror editor, highlight changes
 editor.on("change", function (cm, change) {
-    if (window.diffMarkers) {
-        window.diffMarkers.forEach((m) => m.clear());
-    }
-    window.diffMarkers = [];
-    const newValue = cm.getValue().split("\n").join("");
-    const dmp = new diff_match_patch();
-    const diffs = dmp.diff_main(originalInputValue, newValue);
-    dmp.diff_cleanupSemantic(diffs);
-    let pos = 0;
-    diffs.forEach(([op, text]) => {
-        if (op === 0) {
-            pos += text.length;
-        } else if (op === 1) {
-            const startPos = cm.posFromIndex(pos);
-            const endPos = cm.posFromIndex(pos + text.length);
-            window.diffMarkers.push(
-                cm.markText(startPos, endPos, { className: "diff-highlight" })
-            );
-            pos += text.length;
-        }
-    });
-    const deletedMask = createDeletedMask(originalInputValue, newValue);
+    // if (window.diffMarkers) {
+    //     window.diffMarkers.forEach((m) => m.clear());
+    // }
+    // window.diffMarkers = [];
+    // const newValue = cm.getValue().split("\n").join("");
+    // const dmp = new diff_match_patch();
+    // const diffs = dmp.diff_main(originalInputValue, newValue);
+    // dmp.diff_cleanupSemantic(diffs);
+    // let pos = 0;
+    // diffs.forEach(([op, text]) => {
+    //     if (op === 0) {
+    //         pos += text.length;
+    //     } else if (op === 1) {
+    //         const startPos = cm.posFromIndex(pos);
+    //         const endPos = cm.posFromIndex(pos + text.length);
+    //         window.diffMarkers.push(
+    //             cm.markText(startPos, endPos, { className: "diff-highlight" })
+    //         );
+    //         pos += text.length;
+    //     }
+    // });
+    // const deletedMask = createDeletedMask(originalInputValue, newValue);
     // Update Output (Styled URL)
     clicksOutput.innerHTML = colorizeExplodedUrlLines(originalInputValue);
     checkUrlMatch(originalInputValue, clicksOutput, clicksMessage);
@@ -344,10 +344,10 @@ if (refreshButtonInput) {
         clicksMessage.textContent = "";
         
         // Clear any diff markers
-        if (window.diffMarkers) {
-            window.diffMarkers.forEach((m) => m.clear());
-            window.diffMarkers = [];
-        }
+        // if (window.diffMarkers) {
+        //     window.diffMarkers.forEach((m) => m.clear());
+        //     window.diffMarkers = [];
+        // }
         
         // Refresh the editor
         editor.refresh();

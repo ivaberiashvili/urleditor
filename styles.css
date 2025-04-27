@@ -191,10 +191,11 @@ body {
     padding-bottom: 48px !important;
     resize: none;
     position: relative;
+    overflow-x: hidden !important;
   }
   
   .CodeMirror-scroll {
-    overflow-x: hidden;
+    overflow-x: hidden !important;
     min-height: 200px;
     height: auto !important;
     resize: none !important;
@@ -454,13 +455,13 @@ body {
   background: white;
 }
 
-/* 4) Extra bottom padding inside CM so the “+” is always visible */
+/* 4) Extra bottom padding inside CM so the "+" is always visible */
 .editable-url-column .CodeMirror {
-  /* if you’d previously zeroed this out, restore it here */
+  /* if you'd previously zeroed this out, restore it here */
   padding-bottom: 32px !important; /* enough for the 16px button + some breathing room */
 }
 
-/* 5) (Optional) if you want exact same “starting” height: */
+/* 5) (Optional) if you want exact same "starting" height: */
 .output,
 .editable-url-column .CodeMirror {
   min-height: 200px; /* or whatever your default was */
