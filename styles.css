@@ -60,6 +60,7 @@ table {
     --color-pink: #F35ADC;   /* Fuchsia pink */
     --color-red: #F95A49;    /* Coral/red */
     --color-peach: #FFBFA7;  /* Pastel peach */
+    --color-coral: #F95A49;  /* Coral for deleted text */
 
     /* for heropattern*/
     --color-lavender-light: #E7E3EE;
@@ -183,8 +184,9 @@ body {
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     border-top: none;
-    padding: 8px;
+    padding: 0;
     resize: none;
+    position: relative;
   }
   
   .CodeMirror-scroll {
@@ -204,7 +206,14 @@ body {
   }
 
   .CodeMirror-lines {
-    padding: 8px;
+    padding: 8px 0;
+    margin-left:36px;
+  }
+
+  .CodeMirror-line {
+    padding: 0 8px !important;
+    display: flex;
+    align-items: center;
   }
 
   .CodeMirror-cursor {
@@ -242,7 +251,7 @@ body {
   
   /* Highlight deleted characters in Output while preserving colorization */
   .deleted {
-    background-color: var(--color-peach);
+    background-color: var(--color-coral);
     color: var(--color-dark);
   }
   
@@ -301,3 +310,77 @@ body {
     pointer-events: none;
     font-size: 14px;
   }
+
+  /* Line deletion button styles */
+  .line-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--color-gray);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    position: absolute;
+    left:8px;
+    z-index: 5;
+  }
+
+  .line-delete-btn:hover {
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+  }
+
+  .line-delete-btn::before {
+    content: "−";
+    font-size: 16px;
+    line-height: 1;
+    color:var(--color-gray);
+  }
+
+  /* Update CodeMirror styles for line-based editing */
+  .CodeMirror {
+    /* ... existing code ... */
+    padding: 0;
+  }
+
+  .CodeMirror-lines {
+    padding: 8px 0;
+  }
+
+  .CodeMirror-line {
+    padding: 0 8px !important;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Update token colors */
+  .cm-domain {
+    color: var(--color-teal);
+  }
+
+  .cm-parameter {
+    color: var(--color-pink);
+  }
+
+  .cm-value {
+    color: var(--color-blue);
+  }
+
+  /* Update diff highlighting */
+  .diff-highlight {
+    background-color: var(--color-lime);
+  }
+
+  .deleted {
+    background-color: var(--color-coral);
+    color: var(--color-dark);
+  }
+
+
+  /* STEP 1: allow absolutely positioned children */
+.editable-url-column {
+  position: relative;
+}
