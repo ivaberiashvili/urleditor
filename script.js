@@ -181,9 +181,24 @@ const editor = CodeMirror.fromTextArea(document.getElementById("clicksEditor"), 
             const lineText = cm.getLine(pos.line);
 
             if (pos.ch === lineText.length) {
-                // cursor at end-of-line → insert a new line with '&'
-                cm.replaceRange("\n&", { line: pos.line, ch: lineText.length });
-                cm.setCursor({ line: pos.line + 1, ch: 1 });
+                if (pos.line === 0) {
+                    // Insert a new blank line below (no &)
+                    cm.replaceRange("\n", { line: pos.line, ch: lineText.length });
+                    cm.setCursor({ line: pos.line + 1, ch: 0 });
+                    // If there is a third line, ensure it starts with '&'
+                    setTimeout(() => {
+                        if (cm.lineCount() > 2) {
+                            const thirdLine = cm.getLine(2);
+                            if (thirdLine && !thirdLine.startsWith('&')) {
+                                cm.replaceRange('&', { line: 2, ch: 0 });
+                            }
+                        }
+                    }, 0);
+                } else {
+                    // For second line and onward, insert a new line with '&' at the start
+                    cm.replaceRange("\n&", { line: pos.line, ch: lineText.length });
+                    cm.setCursor({ line: pos.line + 1, ch: 1 });
+                }
             } else {
                 // default newline + auto-indent
                 cm.execCommand("newlineAndIndent");
