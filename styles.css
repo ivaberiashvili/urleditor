@@ -60,7 +60,6 @@ table {
     --color-pink: #F35ADC;   /* Fuchsia pink */
     --color-red: #F95A49;    /* Coral/red */
     --color-peach: #FFBFA7;  /* Pastel peach */
-    --color-coral: #F95A49;  /* Coral for deleted text */
 
     /* for heropattern*/
     --color-lavender-light: #E7E3EE;
@@ -251,7 +250,7 @@ body {
   
   /* Highlight deleted characters in Output while preserving colorization */
   .deleted {
-    background-color: var(--color-coral);
+    background-color: var(--color-red);
     color: var(--color-dark);
   }
   
@@ -318,25 +317,27 @@ body {
     justify-content: center;
     width: 16px;
     height: 16px;
-    border: 1px solid var(--color-gray);
+    border: 2px solid var(--color-gray);
     border-radius: 50%;
     background: transparent;
     padding: 0;
     position: absolute;
     left:10px;
     z-index: 5;
-  }
-
-  .line-delete-btn:hover {
-    border-color: var(--color-coral);
-    color: var(--color-coral);
+    transition: 0.1s ease;
   }
 
   .line-delete-btn::before {
     content: "−";
     font-size: 16px;
-    line-height: 1;
-    color:var(--color-gray);
+    line-height: 2;
+    color: var(--color-gray);
+  }
+
+  .line-delete-btn:hover,
+  .line-delete-btn:hover::before {
+    color: var(--color-peach) !important;
+    border-color: var(--color-peach) !important;
   }
 
   /* Update CodeMirror styles for line-based editing */
@@ -374,12 +375,11 @@ body {
   }
 
   .deleted {
-    background-color: var(--color-coral);
+    background-color: var(--color-red);
     color: var(--color-dark);
   }
 
 
-  /* STEP 1: allow absolutely positioned children */
 .editable-url-column {
   position: relative;
 }
