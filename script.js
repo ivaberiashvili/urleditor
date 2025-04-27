@@ -177,8 +177,21 @@ const editor = CodeMirror.fromTextArea(document.getElementById("clicksEditor"), 
     viewportMargin: Infinity,
     extraKeys: {
         "Enter": function(cm) {
-            // Prevent new line creation
-            return false;
+            const pos = cm.getCursor();
+            const lineText = cm.getLine(pos.line);
+
+            if (pos.ch === lineText.length) {
+                // cursor at end-of-line → insert a new line with '&'
+                cm.replaceRange("\n&", { line: pos.line, ch: lineText.length });
+                cm.setCursor({ line: pos.line + 1, ch: 1 });
+            } else {
+                // default newline + auto-indent
+                cm.execCommand("newlineAndIndent");
+            }
+
+            // refresh your little buttons
+            addLineDeleteButtons();
+            cm.focus();
         }
     }
 });
@@ -260,6 +273,37 @@ editor.on("change", function (cm, change) {
 // =============== Copy Button Logic ===============
 const copyButtonInput = document.getElementById("copyButtonInput");
 const copyPopupInput = document.getElementById("copyPopupInput");
+const refreshButtonInput = document.getElementById("refreshButtonInput");
+
+if (refreshButtonInput) {
+    refreshButtonInput.addEventListener("click", () => {
+        // Keep the input value but reset everything else
+        const currentInput = clicksInput.value;
+        
+        // Clear the editor
+        editor.setValue("");
+        
+        // Clear the output
+        clicksOutput.innerHTML = "";
+        clicksMessage.textContent = "";
+        
+        // Clear any diff markers
+        if (window.diffMarkers) {
+            window.diffMarkers.forEach((m) => m.clear());
+            window.diffMarkers = [];
+        }
+        
+        // Refresh the editor
+        editor.refresh();
+        
+        // Trigger the input event to reprocess the URL
+        clicksInput.dispatchEvent(new Event('input'));
+        
+        // Focus back on the input
+        clicksInput.focus();
+    });
+}
+
 if (copyButtonInput) {
     copyButtonInput.addEventListener("click", () => {
         navigator.clipboard
