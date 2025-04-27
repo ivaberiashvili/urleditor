@@ -66,7 +66,7 @@
       <!-- Edit URL Column -->
       <div class="column editable-url-column">
         <div class="copy-container">
-          <h4>Editable URL</h4>
+          <h4>Edit URL</h4>
           <button id="copyButtonEditor">
             <span class="material-symbols-outlined">content_copy</span>
           </button>
@@ -84,7 +84,13 @@
     <!-- Notes Section (full width) -->
     <div class="column">
       <div class="copy-container">
-        <h4>Notes</h4>
+        <div class="notes-tabs" id="notesTabs">
+          <button class="notes-tab active" data-tab="notes" id="tabNotes">Notes</button>
+          <button class="notes-tab" data-tab="appsflyer" id="tabAppsflyer">Appsflyer</button>
+          <button class="notes-tab" data-tab="adjust" id="tabAdjust">Adjust</button>
+          <button class="notes-tab" data-tab="crossplatform" id="tabCrossPlatform">Cross-Platform</button>
+          <button class="notes-tab" data-tab="other" id="tabOther">Other</button>
+        </div>
         <span id="copyPopupNotes" class="copy-popup">Copied</span>
       </div>
       <textarea

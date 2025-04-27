@@ -56,6 +56,7 @@ table {
     --color-blue: #5A6CF3;   /* Vibrant lavender/blue */
     --color-lime: #D6FF97;   /* Pastel lime green */
     --color-gray: #dddddd;   /* Light gray */
+    --color-dark-gray: #808080;   /* Light gray */
     --color-offwhite: #f4f2f9;   /* Very light gray */
     --color-pink: #F35ADC;   /* Fuchsia pink */
     --color-red: #F95A49;    /* Coral/red */
@@ -413,8 +414,28 @@ body {
   height: auto;
   min-height: 200px;
   max-height:900px;
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  overflow-y: hidden !important;
+  position: relative;
+  top: -1px; /* Pull up to touch the tab bar */
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE 10+ */
+}
+#notesInput::-webkit-scrollbar {
+  display: none;              /* Chrome/Safari/Webkit */
 }
 
+#notesInput:focus {
+  overflow-y: auto;
+}
+
+@media (max-height: 900px) {
+  #notesInput {
+    overflow-y: auto;
+  }
+}
 
 /* 2) Force CodeMirror to fill its column and match the white bg */
 .editable-url-column .CodeMirror {
@@ -465,4 +486,49 @@ body {
 .output,
 .editable-url-column .CodeMirror {
   min-height: 200px; /* or whatever your default was */
+}
+
+.notes-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--color-offwhite);
+  border: none;
+  border-bottom: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  margin-bottom: 0;
+  margin-top: 0; /* Remove any top margin */
+  justify-content: flex-end;
+}
+
+.notes-tab {
+  background: none;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  padding: 6px 20px 16px 20px;
+  font-size: 1em;
+  color: var(--color-lavender-muted) !important;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  margin-bottom: -1px;
+  outline: none;
+  font-weight: 600;
+}
+
+.notes-tab.active {
+  background: white !important;
+  color: var(--color-dark) !important;
+  border: none;
+  font-weight: 600;
+  z-index: 2;
+  box-shadow: none;
+}
+
+.notes-tab:not(.active):hover {
+  background: white !important;
+  color: var(--color-dark) !important;
+}
+
+.copy-container:has(.notes-tabs) {
+  padding-bottom: 0;
 }

@@ -475,3 +475,42 @@ if (notesInput) {
     // Initial resize in case of pre-filled content
     autoResize();
 }
+
+// =============== Notes Tab Bar Logic ===============
+const notesTabs = document.getElementById('notesTabs');
+const notesTabButtons = [
+  document.getElementById('tabNotes'),
+  document.getElementById('tabAppsflyer'),
+  document.getElementById('tabAdjust'),
+  document.getElementById('tabCrossPlatform'),
+  document.getElementById('tabOther')
+];
+const notesCheatsheets = {
+  notes: '',
+  appsflyer: `Appsflyer Cheatsheet:\n\n- af_sub1, af_sub2, ...: Custom parameters\n- af_adset, af_ad: Ad set and ad name\n- af_c_id: Campaign ID\n- af_siteid: Publisher ID\n- af_channel: Channel\n- is_retargeting: true/false\n- af_dp: Deep link\n\nDocs: https://support.appsflyer.com/hc/en-us/articles/207032066` ,
+  adjust: `Adjust Cheatsheet:\n\n- adjust_campaign, adjust_adgroup, adjust_creative: Campaign structure\n- adjust_tracker: Tracker token\n- adjust_adid: Ad ID\n- adjust_network: Network\n- adjust_label: Custom label\n- adjust_redirect: Redirect URL\n\nDocs: https://help.adjust.com/en/article/tracker-parameters` ,
+  crossplatform: `Cross-Platform Cheatsheet:\n\n- utm_source, utm_medium, utm_campaign: Standard campaign params\n- device_id, idfa, gaid: Device identifiers\n- os, platform: Platform info\n- click_id: Click identifier\n- deep_link: Deep link\n\nBest practice: Use consistent param names across platforms.` ,
+  other: `Other Cheatsheet:\n\n- ref: Referrer\n- src: Source\n- cid: Campaign ID\n- pid: Partner ID\n- custom_param: Any custom parameter\n\nTip: Document any custom params for your team.`
+};
+
+if (notesTabs && notesInput) {
+  notesTabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('.notes-tab');
+    if (!btn) return;
+    // Remove active from all, add to clicked
+    notesTabButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Set textarea value to default for tab
+    const tab = btn.dataset.tab;
+    notesInput.value = notesCheatsheets[tab] || '';
+    // Resize textarea
+    notesInput.style.height = 'auto';
+    notesInput.style.height = notesInput.scrollHeight + 'px';
+  });
+}
+// On page load, default to Notes tab (blank)
+if (notesInput) {
+  notesInput.value = notesCheatsheets['notes'];
+  notesInput.style.height = 'auto';
+  notesInput.style.height = notesInput.scrollHeight + 'px';
+}
