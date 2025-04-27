@@ -395,3 +395,32 @@ function addLineDeleteButtons() {
 editor.on("change", addLineDeleteButtons);
 editor.on("refresh", addLineDeleteButtons);
 addLineDeleteButtons();
+
+const addLineButton = document.getElementById("addLineButton");
+if (addLineButton) {
+    addLineButton.addEventListener("click", () => {
+        const lineCount = editor.lineCount();
+        if (lineCount === 1) {
+            // Only domain line exists, add a blank line (no &)
+            editor.replaceRange("\n", { line: 0, ch: editor.getLine(0).length });
+            editor.setCursor({ line: 1, ch: 0 });
+        } else {
+            // Add a new line at the end, starting with &
+            editor.replaceRange("\n&", { line: lineCount - 1, ch: editor.getLine(lineCount - 1).length });
+            editor.setCursor({ line: lineCount, ch: 1 });
+        }
+        addLineDeleteButtons();
+        editor.focus();
+    });
+}
+
+const notesInput = document.getElementById("notesInput");
+if (notesInput) {
+    const autoResize = () => {
+        notesInput.style.height = 'auto';
+        notesInput.style.height = notesInput.scrollHeight + 'px';
+    };
+    notesInput.addEventListener('input', autoResize);
+    // Initial resize in case of pre-filled content
+    autoResize();
+}
