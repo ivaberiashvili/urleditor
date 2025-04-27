@@ -211,6 +211,47 @@ const editor = CodeMirror.fromTextArea(document.getElementById("clicksEditor"), 
     }
 });
 
+// make clicks in the bottom padding insert a real new line
+const wrapper = editor.getWrapperElement();
+wrapper.addEventListener("click", (e) => {
+  const { top } = wrapper.getBoundingClientRect();
+  const clickY = e.clientY - top;
+  const lineHeight = editor.defaultTextHeight();
+  const contentHeight = editor.lineCount() * lineHeight;
+  // 8px = the CodeMirror .lines top padding you’ve set in CSS
+  if (clickY > contentHeight + 8) {
+    // insert a new param line at the end
+    const lastLine = editor.lineCount() - 1;
+    const lastCh  = editor.getLine(lastLine).length;
+    editor.replaceRange("\n&", { line: lastLine, ch: lastCh });
+    editor.focus();
+    addLineDeleteButtons();
+  }
+});
+
+// Auto-split pasted URL params into separate lines
+editor.on("beforeChange", (cm, change) => {
+  // only intercept real paste events
+  if (change.origin === "paste") {
+    // the full pasted text
+    const pasted = change.text.join("\n");
+    // make sure it looks like a chunk of params (has & and =)
+    if (pasted.includes("&") && pasted.includes("=")) {
+      // split on &, strip any leading “?” and empties
+      const pairs = pasted
+        .split("&")
+        .map(s => s.trim().replace(/^\?/, ""))
+        .filter(Boolean);
+      // re-prefix “&” on each one
+      const lines = pairs.map(pair => "&" + pair);
+      // replace the paste with our lines
+      change.update(null, null, lines);
+      // re-draw the delete buttons
+      setTimeout(addLineDeleteButtons, 0);
+    }
+  }
+});
+
 // Helper: Colorize and explode URL into lines for Styled URL
 function colorizeExplodedUrlLines(url) {
     const trimmedUrl = url.trim();
