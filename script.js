@@ -356,40 +356,50 @@ if (copyButtonEditor) {
 
 // Add line deletion buttons
 function addLineDeleteButtons() {
-  // remove old buttons
+  // remove old delete-buttons
   document.querySelectorAll('.line-delete-btn').forEach(b => b.remove());
 
-  const wrapper    = editor.getWrapperElement();
-  const lineHeight = editor.defaultTextHeight();  // e.g. 24px
-  // Grab the top padding you set on .CodeMirror-lines (e.g. 8px)
-  const topPadding = parseInt(
+  const wrapper     = editor.getWrapperElement();
+  const lineHeight  = editor.defaultTextHeight();  // e.g. 24px
+  const topPadding  = parseInt(
     getComputedStyle(wrapper.querySelector('.CodeMirror-lines')).paddingTop,
     10
   );
+  const iconHeight    = 16;
+  const verticalNudge = (lineHeight - iconHeight) / 2;
+
+  // track last non-empty line index
+  let lastLineIndex = -1;
 
   for (let i = 0; i < editor.lineCount(); i++) {
     const text = editor.getLine(i).trim();
     if (!text) continue;  // skip empty lines
 
-    // Create the button
+    lastLineIndex = i;
+    // Create delete button
     const btn = document.createElement('button');
     btn.className = 'line-delete-btn';
-
-    // Center a 16px-tall icon inside a lineHeight-tall row
-    const iconHeight   = 16;                              // your button height
-    const verticalNudge = (lineHeight - iconHeight) / 2;  // e.g. (24–16)/2 = 4
-
-    // Set its Y position relative to the CodeMirror wrapper
     btn.style.top = `${topPadding + i * lineHeight + verticalNudge}px`;
-
-    // Delete the corresponding line on click
     btn.addEventListener('click', () => {
       editor.replaceRange('', { line: i, ch: 0 }, { line: i + 1, ch: 0 });
       editor.refresh();
     });
-
-    // Append into the wrapper (which is position: relative)
     wrapper.appendChild(btn);
+  }
+
+  // Show the + button only if there's at least one non-empty line
+  const addBtn = document.getElementById('addLineButton');
+  if (lastLineIndex >= 0) {
+    const nextLine = lastLineIndex + 1;
+    addBtn.style.display = 'flex';
+    addBtn.style.top = `${topPadding + nextLine * lineHeight + verticalNudge}px`;
+    wrapper.appendChild(addBtn);
+    // Add extra bottom padding to wrapper so + button is always visible
+    wrapper.style.paddingBottom = `${lineHeight + 16}px`;
+  } else {
+    addBtn.style.display = 'none';
+    // Remove extra bottom padding
+    wrapper.style.paddingBottom = '';
   }
 }
 editor.on("change", addLineDeleteButtons);

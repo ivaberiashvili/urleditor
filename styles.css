@@ -84,11 +84,14 @@ body {
   .row {
     display: flex;
     gap: 20px;
+    align-items: stretch; 
   }
   
   .row .column {
     flex: 1;
     margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
   }
   /* Fixed-width container in ch units to align line wrapping and center it */
   .column {
@@ -175,7 +178,7 @@ body {
   .CodeMirror {
     box-sizing: border-box;
     width: 100%;
-    min-height: 200px;
+    min-height: 232px;
     height: auto !important;
     font-family: inherit;
     font-size: inherit;
@@ -185,6 +188,7 @@ body {
     border-bottom-right-radius: 6px;
     border-top: none;
     padding: 0;
+    padding-bottom: 48px !important;
     resize: none;
     position: relative;
   }
@@ -318,7 +322,7 @@ body {
     width: 16px;
     height: 16px;
     border: 2px solid var(--color-gray);
-    border-radius: 50%;
+    border-radius: 25%;
     background: transparent;
     padding: 0;
     position: absolute;
@@ -391,10 +395,12 @@ body {
   width: 16px;
   height: 16px;
   border: 2px solid var(--color-gray);
-  border-radius: 50%;
+  border-radius: 25%;
   background: transparent;
   color: var(--color-gray);
   font-size: inherit;
+  position: absolute;
+  left:10px;
   transition: 0.1s ease;
 }
 .line-add-btn:hover {
@@ -406,4 +412,56 @@ body {
   height: auto;
   min-height: 200px;
   max-height:900px;
+}
+
+
+/* 2) Force CodeMirror to fill its column and match the white bg */
+.editable-url-column .CodeMirror {
+  /* remove any bottom-padding you added previously */
+  padding-bottom: 0 !important;
+  background-color: white; /* match the .output pane */
+  /* allow it to grow to fill the column */
+  flex: 1;
+}
+
+/* 3) Make sure the scroll-pane inside CM is also white */
+.editable-url-column .CodeMirror-scroll {
+  background-color: white;
+}
+
+/* 4) (Optional) if you want exact pixel-match height with the .output box: */
+/*    give both panes the same min-height */
+.output,
+.editable-url-column .CodeMirror {
+  min-height: 200px;  /* or whatever your "initial" height is */
+}
+
+
+
+/* 2) Let the output box and the CodeMirror box grow to fill their column */
+.column .output,
+.editable-url-column .CodeMirror {
+  flex: 1 1 auto;
+  min-height: 0; /* allow shrinking in flex context */
+}
+
+/* 3) Match backgrounds so no grey bleeds through */
+.column .output {
+  background: white;
+}
+.editable-url-column .CodeMirror,
+.editable-url-column .CodeMirror-scroll {
+  background: white;
+}
+
+/* 4) Extra bottom padding inside CM so the “+” is always visible */
+.editable-url-column .CodeMirror {
+  /* if you’d previously zeroed this out, restore it here */
+  padding-bottom: 32px !important; /* enough for the 16px button + some breathing room */
+}
+
+/* 5) (Optional) if you want exact same “starting” height: */
+.output,
+.editable-url-column .CodeMirror {
+  min-height: 200px; /* or whatever your default was */
 }
